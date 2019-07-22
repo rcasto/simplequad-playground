@@ -9,6 +9,6 @@
   "author": "Richie Casto (https://github.com/rcasto)",
   "license": "MIT",
   "dependencies": {
-    "simplequad": "^1.0.4"
+    "simplequad": "^1.0.6"
   }
 }
