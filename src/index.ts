@@ -16,20 +16,21 @@ const capacity: number = 10;
 const bounds: BoundingBox = {
     x: 0,
     y: 0,
-    width: 600,
-    height: 400,
+    width: window.innerWidth,
+    height: window.innerHeight,
 };
 const canvas: HTMLCanvasElement = document.getElementById('canvas') as unknown as HTMLCanvasElement;
 const context: CanvasRenderingContext2D = canvas.getContext('2d') as CanvasRenderingContext2D;
 const quadTree: QuadTree = createQuadTree(bounds, capacity);
 const wallDampenFactor: number = 0.8;
-const particleRadius: number = 5;
+const maxParticleRadius: number = 15;
+const minParticleRadius: number = 5;
 const particleVelocity: Vector = {
     x: 1,
     y: 1,
 };
 const TWO_PI: number = 2 * Math.PI;
-const maxParticlesInWorld: number = 100;
+const maxParticlesInWorld: number = 1000;
 const particlesInWorld: Particle[] = [];
 
 canvas.width = bounds.width;
@@ -39,10 +40,7 @@ function animate(animateTimestamp: number = 0) {
     window.requestAnimationFrame(animate);
 
     // Check if we are at capacity with particles
-    if (particlesInWorld.length + 1 > maxParticlesInWorld) {
-        // clear held particles
-        particlesInWorld.length = 0;
-    } else {
+    if (particlesInWorld.length + 1 <= maxParticlesInWorld) {
         // add a new particle
         const particle: Particle = createParticle(quadTree.bounds);
         particlesInWorld.push(particle);
@@ -52,10 +50,6 @@ function animate(animateTimestamp: number = 0) {
     context.clearRect(0, 0, canvas.width, canvas.height);
     quadTree.clear();
 
-    // Build quadtree for particles in world
-    particlesInWorld
-        .forEach(particleInWorld => quadTree.add(particleInWorld));
-
     // Update the state of each particle (move it)
     particlesInWorld
         .forEach(particleInWorld => particleInWorld.update(animateTimestamp));
@@ -63,6 +57,10 @@ function animate(animateTimestamp: number = 0) {
     // Resolve the state of each particle such that it isn't out of the world bounds
     particlesInWorld
         .forEach(particleInWorld => resolveParticleWorldCollisions(particleInWorld, quadTree));
+
+    // Build quadtree for particles in world
+    particlesInWorld
+        .forEach(particleInWorld => quadTree.add(particleInWorld));
 
     // Draw each particle in the world
     particlesInWorld
@@ -73,7 +71,7 @@ function animate(animateTimestamp: number = 0) {
 }
 
 // Resolves all particle collisions
-function resolveParticleWorldCollisions(particle: Particle, world: QuadTree): void {
+function resolveParticleWorldCollisions(particle: Particle, quadTree: QuadTree): void {
     const minX: number = quadTree.bounds.x + particle.r;
     const minY: number = quadTree.bounds.y + particle.r;
     const maxX: number = quadTree.bounds.x + quadTree.bounds.width - particle.r;
@@ -104,14 +102,18 @@ function resolveParticleWorldCollisions(particle: Particle, world: QuadTree): vo
 // function createStaticParticle()
 // function createDynamicParticle()
 function createParticle(bounds: BoundingBox): Particle {
-    const x = (bounds.x + bounds.width - particleRadius) * Math.random() + bounds.x + particleRadius;
-    const y = (bounds.y + bounds.height - particleRadius) * Math.random() + bounds.y + particleRadius;
+    const r = Math.max(maxParticleRadius * Math.random(), minParticleRadius); 
+    const x = (bounds.x + bounds.width - r) * Math.random() + bounds.x + r;
+    const y = (bounds.y + bounds.height - r) * Math.random() + bounds.y + r;
+    const vx: number = Math.random() * particleVelocity.x;
+    const vy: number = Math.random() * particleVelocity.y;
     return {
         x, 
         y,
-        r: particleRadius,
+        r,
         v: {
-            ...particleVelocity,
+            x: vx,
+            y: vy,
         },
         lastUpdate: 0,
         update(timestamp: number) {
@@ -129,6 +131,7 @@ function createParticle(bounds: BoundingBox): Particle {
             if (isCollided) {
                 context.fill();
             }
+            context.closePath();
             context.beginPath();
             context.fillStyle = 'red';
             context.arc(this.x, this.y, 1, 0, TWO_PI);
