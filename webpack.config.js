@@ -4,7 +4,7 @@ module.exports = {
     mode: 'development',
     devtool: 'inline-source-map',
     // Change to your "entry-point".
-    entry: './src/index',
+    entry: './src/compression',
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: 'app.bundle.js'
