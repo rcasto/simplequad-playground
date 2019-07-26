@@ -49,41 +49,46 @@ function getAverageColor(pixels: Pixel[]): Color {
     };
 }
 
-function compressImage(imageData: ImageData, quality: number = 1) {
+function buildQuadTreeFromPixels(pixels: Pixel[], quality: number = 1): QuadTree {
     const capacity: number = Math.round(1 / quality);
     const quadTree: QuadTree = createQuadTree({
         x: 0,
         y: 0,
-        width: imageData.width,
-        height: imageData.height,
+        width: canvas.width,
+        height: canvas.height,
     }, capacity);
 
+    // Build quadtree with this capacity from pixels
+    pixels.forEach(pixel => quadTree.add(pixel));
+
+    return quadTree;
+}
+
+function createPixels(imageData: ImageData): Pixel[] {
     let r: number;
     let g: number;
     let b: number;
     let a: number;
     let offsetX: number;
     let offsetY: number;
-    let pixel: Pixel;
+    let pixels: Pixel[] = [];
 
     // Add every pixel to the quadtree
     for (let x = 0; x < imageData.width; x++) {
         for (let y = 0; y < imageData.height; y++) {
             offsetX = x * 4;
-            offsetY = imageData.width * y;
+            offsetY = imageData.width * y * 4;
 
             r = imageData.data[offsetX + offsetY];
             g = imageData.data[offsetX + offsetY + 1];
             b = imageData.data[offsetX + offsetY + 2];
             a = imageData.data[offsetX + offsetY + 3];
 
-            pixel = createPixel(x, y, r, g, b, a);
-            quadTree.add(pixel);
+            pixels.push(createPixel(x, y, r, g, b, a));
         }
     }
 
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    drawTree(context, quadTree);
+    return pixels;
 }
 
 function flattenSets<T>(sets: Set<T>[]): Set<T> {
@@ -134,10 +139,23 @@ function loadImage(imageFile: File): Promise<HTMLImageElement> {
     });
 }
 
+function animateDraw(pixels: Pixel[], quality: number = 0.001) {
+    if (quality < 1) {
+        window.requestAnimationFrame(() => animateDraw(pixels, Math.min(quality * 2, 1)));
+    }
+
+    const quadTree: QuadTree = buildQuadTreeFromPixels(pixels, quality);
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    drawTree(context, quadTree);
+}
+
 function processImage(imageFile: File): void {
     loadImage(imageFile)
         .then(getImageData)
-        .then(compressImage);
+        .then((imageData: ImageData) => {
+            const pixels: Pixel[] = createPixels(imageData);
+            animateDraw(pixels);
+        });
 }
 
 function onImageChange(event: Event) {
@@ -151,15 +169,23 @@ function onImageChange(event: Event) {
     processImage(firstImage);
 }
 
+function resizeCanvas() {
+    const computedStyle = window.getComputedStyle(canvas);
+    const width = parseInt(computedStyle.getPropertyValue('width'), 10);
+    const height = parseInt(computedStyle.getPropertyValue('height'), 10);
+    canvas.width = width;
+    canvas.height = height;
+}
+
 function main() {
     canvas = document.getElementById('canvas') as HTMLCanvasElement;
     context = canvas.getContext('2d') as CanvasRenderingContext2D;
     imageInput = document.getElementById('image-input') as HTMLInputElement;
 
-    canvas.width = 600;
-    canvas.height = 400;
+    resizeCanvas();
 
     imageInput.addEventListener('change', onImageChange);
+    window.addEventListener('resize', resizeCanvas);
 }
 
 main();
