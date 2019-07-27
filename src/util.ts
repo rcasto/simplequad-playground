@@ -93,8 +93,9 @@ export function processImageData(imageData: ImageData, processFunc: (pixel: Pixe
     let pixel: Pixel;
 
     for (let x = initPixelX; x < imageData.width; x++) {
+        offsetX = x * PIXEL_WIDTH;
+
         for (let y = initPixelY; y < imageData.height; y++) {
-            offsetX = x * PIXEL_WIDTH;
             offsetY = imageData.width * y * PIXEL_WIDTH;
 
             r = imageData.data[offsetX + offsetY];
@@ -136,8 +137,9 @@ export function copyImageDataOver(sourceImageData: ImageData, targetImageData: I
     let pixelOffset: number;
 
     for (let x = initPixelX; x < targetImageData.width; x++) {
+        offsetX = x * PIXEL_WIDTH;
+        
         for (let y = initPixelY; y < targetImageData.height; y++) {
-            offsetX = x * PIXEL_WIDTH;
             offsetY = targetImageData.width * y * PIXEL_WIDTH;
             pixelOffset = offsetX + offsetY;
 

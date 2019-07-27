@@ -16,7 +16,7 @@
   "license": "MIT",
   "dependencies": {
     "express": "^4.17.1",
-    "simplequad": "^1.0.7"
+    "simplequad": "^1.0.8"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.3",

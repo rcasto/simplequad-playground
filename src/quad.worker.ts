@@ -15,7 +15,7 @@ function buildQuadTreeFromPixels(imageData: ImageData, bounds: BoundingBox, capa
 }
 
 function getImageDataFromQuadTree(quadTree: QuadTree<PixelObject>): ImageData {
-    const imageData: ImageData = new ImageData(quadTree.bounds.width, quadTree.bounds.height);
+    const imageData: ImageData = new ImageData(Math.max(quadTree.bounds.width, 1), Math.max(quadTree.bounds.height, 1));
     
     if (quadTree.quadrants.length) {
         let quadImageData: ImageData;
