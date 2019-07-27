@@ -32,22 +32,29 @@ export function loadImage(imageFile: File): Promise<HTMLImageElement> {
 }
 
 export function getAverageColor(pixels: Pixel[]): Color {
-    let squaredSumR: number = 0;
-    let squaredSumG: number = 0;
-    let squaredSumB: number = 0;
-    let squaredSumA: number = 0;
-    pixels.forEach(pixel => {
-        squaredSumR += Math.pow(pixel.r, 2);
-        squaredSumG += Math.pow(pixel.g, 2);
-        squaredSumB += Math.pow(pixel.b, 2);
-        squaredSumA += Math.pow(pixel.a, 2);
-    });
-    return {
-        r: Math.sqrt(squaredSumR / pixels.length),
-        g: Math.sqrt(squaredSumG / pixels.length),
-        b: Math.sqrt(squaredSumB / pixels.length),
-        a: Math.sqrt(squaredSumA / pixels.length),
-    };
+    let squaredSumR: number;
+    let squaredSumG: number;
+    let squaredSumB: number;
+    let squaredSumA: number;
+    let averageColor: Color = pixels[0];
+
+    if (pixels.length > 1) {
+        return pixels.slice(1)
+            .reduce((prevAverage: Color, currPixel: Pixel) => {
+                squaredSumR = Math.pow(prevAverage.r, 2) + Math.pow(currPixel.r, 2);
+                squaredSumG = Math.pow(prevAverage.g, 2) + Math.pow(currPixel.g, 2);
+                squaredSumB = Math.pow(prevAverage.b, 2) + Math.pow(currPixel.b, 2);
+                squaredSumA = Math.pow(prevAverage.a, 2) + Math.pow(currPixel.a, 2);
+                return {
+                    r: Math.sqrt(squaredSumR / 2),
+                    g: Math.sqrt(squaredSumG / 2),
+                    b: Math.sqrt(squaredSumB / 2),
+                    a: Math.sqrt(squaredSumA / 2),
+                };
+            }, averageColor);
+    }
+
+    return averageColor;
 }
 
 export function createPixel(x: number, y: number, r: number, g: number, b: number, a: number): Pixel {
