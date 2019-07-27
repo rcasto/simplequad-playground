@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node server.js",
     "type-check": "tsc --noEmit",
     "type-check:watch": "npm run type-check -- --watch",
     "build": "npm run build:types && npm run build:js",
@@ -14,6 +15,7 @@
   "author": "Richie Casto (https://github.com/rcasto)",
   "license": "MIT",
   "dependencies": {
+    "express": "^4.17.1",
     "simplequad": "^1.0.6"
   },
   "devDependencies": {

@@ -6,7 +6,7 @@ module.exports = {
     // Change to your "entry-point".
     entry: './src/animation',
     output: {
-        path: path.resolve(__dirname, 'dist'),
+        path: path.resolve(__dirname, 'public', 'scripts'),
         filename: 'app.bundle.js'
     },
     resolve: {
