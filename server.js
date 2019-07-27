@@ -1,5 +1,4 @@
 const express = require('express');
-const path = require('path');
 
 const port = process.env.PORT || 3000;
 
@@ -10,10 +9,6 @@ function init() {
 
     app.get('/', (req, res) => {
         res.sendFile('index.html');
-    });
-
-    app.get('*', (req, res) => {
-        res.redirect('/');
     });
 
     app.listen(port,

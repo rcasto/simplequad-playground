@@ -6,7 +6,7 @@ module.exports = {
     // Change to your "entry-point".
     entry: './src/animation',
     output: {
-        path: path.resolve(__dirname, 'public', 'scripts'),
+        path: path.resolve(__dirname, 'public'),
         filename: 'app.bundle.js'
     },
     resolve: {
@@ -21,7 +21,10 @@ module.exports = {
         },
         {
             test: /\.worker\.(ts|js)x$/,
-            use: { loader: 'worker-loader' }
+            use: { 
+                loader: 'worker-loader',
+                options: { publicPath: '/public/scripts/' }
+            }
         }],
     }
 };

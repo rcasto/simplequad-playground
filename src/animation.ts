@@ -17,7 +17,9 @@ function buildQuadTreeFromPixels(pixels: Pixel[], quality: number = 1): QuadTree
     }, capacity);
 
     // Build quadtree with this capacity from pixels
-    pixels.forEach(pixel => quadTree.add(pixel));
+    pixels.forEach(pixel => {
+        quadTree.add(pixel);
+    });
 
     return quadTree;
 }

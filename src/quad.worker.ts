@@ -1,8 +1,7 @@
-// Worker.ts
-const ctx: Worker = self as any;
+const context: Worker = self as any;
 
 // Post data to parent thread
-ctx.postMessage({ foo: "foo" });
+context.postMessage('yo');
 
 // Respond to message from parent thread
-ctx.addEventListener("message", (event) => console.log(event));
+context.addEventListener('message', (event) => console.log(event.data));
