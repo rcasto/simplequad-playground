@@ -18,6 +18,10 @@ module.exports = {
             test: /\.(ts|js)x?$/,
             exclude: /node_modules/,
             loader: 'babel-loader',
+        },
+        {
+            test: /\.worker\.(ts|js)x$/,
+            use: { loader: 'worker-loader' }
         }],
     }
 };
