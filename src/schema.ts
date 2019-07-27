@@ -7,4 +7,13 @@ export interface Color {
     a: number;
 }
 
-export interface Pixel extends CollisionObject, Point, Color {};
+export interface QuadWorkerMessage {
+    type: string;
+}
+
+export interface QuadWorkerDataMessage extends QuadWorkerMessage {
+    data: ImageData;
+}
+
+export interface Pixel extends Point, Color {};
+export interface PixelObject extends Pixel, CollisionObject {};

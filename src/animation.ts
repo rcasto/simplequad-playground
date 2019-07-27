@@ -1,64 +1,26 @@
-import { createQuadTree, QuadTree } from 'simplequad';
-import { Pixel, Color } from './schema';
-import { getAverageColor, flattenSets, loadImage, createPixels } from './util';
+import { QuadWorkerDataMessage } from './schema';
+import { loadImage } from './util';
 import QuadWorker from 'worker-loader!./quad.worker';
 
 let canvas: HTMLCanvasElement;
 let context: CanvasRenderingContext2D;
 let imageInput: HTMLInputElement;
+let quadWorker: QuadWorker;
 
-function buildQuadTreeFromPixels(pixels: Pixel[], quality: number = 1): QuadTree {
-    const capacity: number = Math.round(1 / quality);
-    const quadTree: QuadTree = createQuadTree({
-        x: 0,
-        y: 0,
-        width: canvas.width,
-        height: canvas.height,
-    }, capacity);
-
-    // Build quadtree with this capacity from pixels
-    pixels.forEach(pixel => {
-        quadTree.add(pixel);
-    });
-
-    return quadTree;
-}
-
-function drawTree(context: CanvasRenderingContext2D, quadTree: QuadTree): void {
-    if (quadTree.quadrants.length) {
-        quadTree.quadrants
-            .forEach(quadrant => drawTree(context, quadrant));
-    } else {
-        const pixels: Set<Pixel> = flattenSets([...quadTree.data.values()]) as Set<Pixel>;
-        const averageColor: Color = getAverageColor([...pixels]);
-        const x: number = quadTree.bounds.x;
-        const y: number = quadTree.bounds.y;
-        const width: number = quadTree.bounds.width;
-        const height: number = quadTree.bounds.height;
-
-        context.beginPath();
-        context.fillStyle = `rgba(${averageColor.r}, ${averageColor.g}, ${averageColor.b}, ${averageColor.a})`;
-        context.fillRect(x, y, width, height);
-        context.closePath();
-    }
-}
-
-function animateDraw(pixels: Pixel[], quality: number = 0.001) {
-    if (quality < 1) {
-        window.requestAnimationFrame(() => animateDraw(pixels, Math.min(quality * 2, 1)));
-    }
-
-    const quadTree: QuadTree = buildQuadTreeFromPixels(pixels, quality);
+function draw(imageData: ImageData) {
     context.clearRect(0, 0, canvas.width, canvas.height);
-    drawTree(context, quadTree);
+    context.putImageData(imageData, 0, 0);
 }
 
 function processImage(imageFile: File): void {
     loadImage(imageFile)
         .then(getImageData)
         .then((imageData: ImageData) => {
-            const pixels: Pixel[] = createPixels(imageData);
-            animateDraw(pixels);
+            const message: QuadWorkerDataMessage = {
+                type: 'new-image',
+                data: imageData
+            };
+            quadWorker.postMessage(message);
         });
 }
 
@@ -88,21 +50,36 @@ function resizeCanvas() {
     canvas.height = height;
 }
 
+function onWorkerMessage(event: MessageEvent): void {
+    const message: QuadWorkerDataMessage = event.data;
+    switch (message.type) {
+        case 'draw':
+            console.log("Request to draw");
+
+            if (message.data) {
+                window.requestAnimationFrame(timestamp => draw(message.data))
+            }
+            break;
+        default:
+            console.error(`Unknown message type: ${message}`);
+            return;
+    }
+    console.log(message.type);
+}
+
 function main() {
     canvas = document.getElementById('canvas') as HTMLCanvasElement;
     context = canvas.getContext('2d') as CanvasRenderingContext2D;
     imageInput = document.getElementById('image-input') as HTMLInputElement;
 
-    resizeCanvas();
-
     imageInput.addEventListener('change', onImageChange);
     window.addEventListener('resize', resizeCanvas);
 
-    const quadWorker: Worker = new QuadWorker();
-    quadWorker.addEventListener('message', (event) => {
-        console.log(event.data);
-    });
-    quadWorker.postMessage('testing');
+    // Web worker logic
+    quadWorker = new QuadWorker();
+    quadWorker.addEventListener('message', onWorkerMessage);
+
+    resizeCanvas();
 }
 
 main();

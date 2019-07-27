@@ -1,4 +1,18 @@
-import { Pixel, Color } from './schema';
+import { Pixel, PixelObject, Color } from './schema';
+
+export const PIXEL_WIDTH: number = 4;
+
+export function toPixelObject(pixel: Pixel): PixelObject {
+    return {
+        ...pixel,
+        getBounds() {
+            return {
+                x: pixel.x,
+                y: pixel.y,
+            };
+        }
+    }
+}
 
 export function loadImage(imageFile: File): Promise<HTMLImageElement> {
     return new Promise((resolve, reject) => {
@@ -15,11 +29,6 @@ export function loadImage(imageFile: File): Promise<HTMLImageElement> {
         };
         image.src = imageFileDataUrl;
     });
-}
-
-export function flattenSets<T>(sets: Set<T>[]): Set<T> {
-    return (sets || [])
-        .reduce((prevSet, currSet) => new Set([...prevSet, ...currSet]), new Set());
 }
 
 export function getAverageColor(pixels: Pixel[]): Color {
@@ -49,40 +58,88 @@ export function createPixel(x: number, y: number, r: number, g: number, b: numbe
         g,
         b,
         a,
-        getBounds() {
-            return {
-                x: this.x,
-                y: this.y,
-                width: 1,
-                height: 1,
-            };
-        },
     }
 }
 
 export function createPixels(imageData: ImageData): Pixel[] {
+    let pixels: Pixel[] = [];
+    processImageData(imageData, pixel => pixels.push(pixel));
+    return pixels;
+}
+
+export function fillImageDataFromColor(imageData: ImageData, color: Color): void {
+    for (let i = 0; i < imageData.data.length; i += PIXEL_WIDTH) {
+        imageData.data[i] = color.r;
+        imageData.data[i + 1] = color.g;
+        imageData.data[i + 2] = color.b;
+        imageData.data[i + 3] = color.a;
+    }
+}
+
+export function processImageData(imageData: ImageData, processFunc: (pixel: Pixel) => void, initPixelX: number = 0, initPixelY: number = 0): void {
     let r: number;
     let g: number;
     let b: number;
     let a: number;
     let offsetX: number;
     let offsetY: number;
-    let pixels: Pixel[] = [];
+    let pixel: Pixel;
 
-    // Add every pixel to the quadtree
-    for (let x = 0; x < imageData.width; x++) {
-        for (let y = 0; y < imageData.height; y++) {
-            offsetX = x * 4;
-            offsetY = imageData.width * y * 4;
+    for (let x = initPixelX; x < imageData.width; x++) {
+        for (let y = initPixelY; y < imageData.height; y++) {
+            offsetX = x * PIXEL_WIDTH;
+            offsetY = imageData.width * y * PIXEL_WIDTH;
 
             r = imageData.data[offsetX + offsetY];
             g = imageData.data[offsetX + offsetY + 1];
             b = imageData.data[offsetX + offsetY + 2];
             a = imageData.data[offsetX + offsetY + 3];
 
-            pixels.push(createPixel(x, y, r, g, b, a));
+            pixel = createPixel(x, y, r, g, b, a);
+            processFunc(pixel);
+        }
+    }
+}
+
+/*
+    Merges the target image data into the source image data object
+
+    First checks if it will fit.
+    Returns true if it was copied over, false if not.
+*/
+export function copyImageDataOver(sourceImageData: ImageData, targetImageData: ImageData, initPixelX: number = 0, initPixelY: number = 0): boolean {
+    // validate inputs
+    if (!sourceImageData ||
+        !targetImageData ||
+        initPixelX < 0 ||
+        initPixelY < 0 ||
+        initPixelX > sourceImageData.width ||
+        initPixelY > sourceImageData.height) {
+        return false;
+    }
+
+    // can target image data fit?
+    if (initPixelX + targetImageData.width > sourceImageData.width ||
+        initPixelY + targetImageData.height > sourceImageData.height) {
+        return false;
+    }
+
+    let offsetX: number;
+    let offsetY: number;
+    let pixelOffset: number;
+
+    for (let x = initPixelX; x < targetImageData.width; x++) {
+        for (let y = initPixelY; y < targetImageData.height; y++) {
+            offsetX = x * PIXEL_WIDTH;
+            offsetY = targetImageData.width * y * PIXEL_WIDTH;
+            pixelOffset = offsetX + offsetY;
+
+            sourceImageData.data[pixelOffset] = targetImageData.data[pixelOffset];
+            sourceImageData.data[pixelOffset + 1] = targetImageData.data[pixelOffset + 1];
+            sourceImageData.data[pixelOffset + 2] = targetImageData.data[pixelOffset + 2];
+            sourceImageData.data[pixelOffset + 3] = targetImageData.data[pixelOffset + 3];
         }
     }
 
-    return pixels;
+    return true;
 }
