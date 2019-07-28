@@ -6,13 +6,31 @@ let canvas: HTMLCanvasElement;
 let context: CanvasRenderingContext2D;
 let imageInput: HTMLInputElement;
 let quadWorker: QuadWorker;
+const frames: ImageData[] = [];
+let offlineAnimateId: number;
 
 function draw(imageData: ImageData) {
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.putImageData(imageData, 0, 0);
 }
 
+function offlineAnimate(offlineFrames: ImageData[], animateIndex: number = 0, currFrameIndex: number = 0, numFramesEach: number = 100): void {
+    let nextFrameIndex: number = currFrameIndex + 1;
+    let nextAnimateIndex: number = animateIndex;
+
+    if (nextFrameIndex > numFramesEach) {
+        nextAnimateIndex = animateIndex + 1 >= offlineFrames.length ? 0 : animateIndex + 1;
+        nextFrameIndex = 0;
+    }
+
+    offlineAnimateId = window.requestAnimationFrame(() => offlineAnimate(offlineFrames, nextAnimateIndex, nextFrameIndex, numFramesEach));
+
+    draw(offlineFrames[nextAnimateIndex]);
+}
+
 function processImage(imageFile: File): void {
+    window.cancelAnimationFrame(offlineAnimateId);
+
     loadImage(imageFile)
         .then(imageElem => getImageDataOffScreen(imageElem, canvas.width, canvas.height))
         .then((imageData: ImageData) => {
@@ -48,8 +66,12 @@ function onWorkerMessage(event: MessageEvent): void {
     switch (message.type) {
         case 'draw':
             if (message.data) {
+                frames.push(message.data);
                 window.requestAnimationFrame(timestamp => draw(message.data))
             }
+            break;
+        case 'processed':
+            offlineAnimateId = window.requestAnimationFrame(() => offlineAnimate(frames));
             break;
         default:
             console.error(`Unknown message type: ${message}`);

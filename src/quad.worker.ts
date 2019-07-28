@@ -1,6 +1,10 @@
-import { QuadWorkerDataMessage, Pixel, Color } from './schema';
+import { QuadWorkerDataMessage, Pixel, Color, QuadWorkerMessage } from './schema';
 import { QuadTree, createQuadTree, BoundingBox } from 'simplequad';
 import { createPixels, getAverageColor, fillPixelInImageData } from './util';
+
+const processedMessage: QuadWorkerMessage = {
+    type: 'processed',
+};
 
 function buildQuadTreeFromPixels(imageData: ImageData, bounds: BoundingBox, capacity: number): QuadTree<Pixel> {
     const pixels: Pixel[] = createPixels(imageData);
@@ -46,6 +50,7 @@ function processImage(imageData: ImageData): void {
     }
 
     requestDraw(imageData, 1);
+    postMessage(processedMessage);
 }
 
 function createImage(imageData: ImageData, capacity: number): ImageData {
