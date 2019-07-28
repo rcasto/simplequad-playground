@@ -7,7 +7,9 @@ let context: CanvasRenderingContext2D;
 let imageInput: HTMLInputElement;
 let exportGifButton: HTMLButtonElement;
 let quadWorker: QuadWorker;
-const frames: ImageData[] = [];
+const processedFrames: ImageData[] = [];
+const processingQueue: File[] = [];
+let isProcessing: boolean = false;
 let offlineAnimateId: number;
 
 function draw(imageData: ImageData) {
@@ -50,8 +52,16 @@ function onImageChange(event: Event) {
         !imageInput.files.length) {
         return;
     }
-    const firstImage = imageInput.files[0];
-    processImage(firstImage);
+    let skipFirst: boolean = false;
+    if (!isProcessing) {
+        processImage(imageInput.files[0]);
+
+        isProcessing = true;
+        skipFirst = true;
+    }
+    for (let fileIndex = skipFirst ? 1 : 0; fileIndex < imageInput.files.length; fileIndex++) {
+        processingQueue.push(imageInput.files[fileIndex]);
+    }
 }
 
 function resizeCanvas() {
@@ -67,13 +77,21 @@ function onWorkerMessage(event: MessageEvent): void {
     switch (message.type) {
         case 'draw':
             if (message.data) {
-                frames.push(message.data);
+                processedFrames.push(message.data);
                 window.requestAnimationFrame(timestamp => draw(message.data))
             }
             break;
         case 'processed':
-            offlineAnimateId = window.requestAnimationFrame(() => offlineAnimate(frames));
-            exportGifButton.disabled = false;
+            if (processingQueue.length) {
+                // process the next image in the queue
+                const nextImageFile: File = processingQueue.shift() as File;
+                processImage(nextImageFile);
+            } else {
+                offlineAnimateId = window.requestAnimationFrame(() => offlineAnimate(processedFrames));
+                isProcessing = false;
+            }
+
+            exportGifButton.disabled = isProcessing;
             break;
         default:
             console.error(`Unknown message type: ${message}`);
@@ -96,7 +114,7 @@ function main() {
     // export logic
     exportGifButton = document.getElementById('export-gif') as HTMLButtonElement;
     exportGifButton.addEventListener('click', () => {
-        toGif(frames);
+        toGif(processedFrames);
     });
 
     // size canvas
