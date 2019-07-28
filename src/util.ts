@@ -132,7 +132,9 @@ export function toGif(imageFrames: ImageData[]): void {
     });
 
     imageFrames
-        .forEach(imageFrame => gif.addFrame(imageFrame));
+        .forEach(imageFrame => gif.addFrame(imageFrame, {
+            delay: 200,
+        }));
 
     gif.on('finished', (blob: any) => {
         saveBlob('simplequad.export.gif', blob);
