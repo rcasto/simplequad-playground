@@ -14,14 +14,11 @@ module.exports = {
     },
     module: {
         rules: [{
-            test: /\.worker\.(ts|js)x?$/,
+            test: /\.worker\.(ts|js)x$/,
             use: [{ 
-                loader: 'worker-loader',
+                loader: 'worker-loader'
             }, {
-                loader: 'babel-loader',
-                options: {
-                    cacheDirectory: true
-                }
+                loader: 'babel-loader'
             }]
         }, {
                 // Include ts, tsx, js, and jsx files.
