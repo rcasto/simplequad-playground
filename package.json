@@ -11,7 +11,7 @@
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
     "bundle": "npm run clean && webpack",
-    "clean": "rimraf public/*.js"
+    "clean": "rimraf *.worker.js app.bundle.js"
   },
   "author": "Richie Casto (https://github.com/rcasto)",
   "license": "MIT",
