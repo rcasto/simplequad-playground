@@ -5,6 +5,7 @@ import QuadWorker from 'worker-loader!./quad.worker';
 let canvas: HTMLCanvasElement;
 let context: CanvasRenderingContext2D;
 let imageInput: HTMLInputElement;
+let exportGifButton: HTMLButtonElement;
 let quadWorker: QuadWorker;
 const frames: ImageData[] = [];
 let offlineAnimateId: number;
@@ -72,6 +73,7 @@ function onWorkerMessage(event: MessageEvent): void {
             break;
         case 'processed':
             offlineAnimateId = window.requestAnimationFrame(() => offlineAnimate(frames));
+            exportGifButton.disabled = false;
             break;
         default:
             console.error(`Unknown message type: ${message}`);
@@ -92,7 +94,7 @@ function main() {
     quadWorker.addEventListener('message', onWorkerMessage);
 
     // export logic
-    const exportGifButton: HTMLButtonElement = document.getElementById('export-gif') as HTMLButtonElement;
+    exportGifButton = document.getElementById('export-gif') as HTMLButtonElement;
     exportGifButton.addEventListener('click', () => {
         toGif(frames);
     });
