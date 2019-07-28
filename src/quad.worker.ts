@@ -2,8 +2,6 @@ import { QuadWorkerDataMessage, Pixel, Color } from './schema';
 import { QuadTree, createQuadTree, BoundingBox } from 'simplequad';
 import { createPixels, getAverageColor, fillPixelInImageData } from './util';
 
-let currentImageData: ImageData | null = null;
-
 function buildQuadTreeFromPixels(imageData: ImageData, bounds: BoundingBox, capacity: number): QuadTree<Pixel> {
     const pixels: Pixel[] = createPixels(imageData);
     const quadTree: QuadTree<Pixel> = createQuadTree(bounds, capacity);
@@ -35,7 +33,7 @@ function processImage(imageData: ImageData): void {
     let capacity: number = imageData.width * imageData.height;
     let message: QuadWorkerDataMessage;
 
-    while (capacity > 1 && currentImageData === imageData) {
+    while (capacity > 1) {
         message = {
             type: 'draw',
             data: createImage(imageData, capacity),
@@ -44,8 +42,6 @@ function processImage(imageData: ImageData): void {
 
         capacity = Math.max(capacity / 2, 1);
     }
-
-    currentImageData = null;
 }
 
 function createImage(imageData: ImageData, capacity: number): ImageData {
@@ -68,10 +64,7 @@ worker.addEventListener('message', (event) => {
 
     switch (message.type) {
         case 'new-image':
-            console.log("Processing a new image");
-
             if (imageData) {
-                currentImageData = imageData;
                 processImage(imageData);
             }
             break;

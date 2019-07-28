@@ -47,8 +47,6 @@ function onWorkerMessage(event: MessageEvent): void {
     const message: QuadWorkerDataMessage = event.data;
     switch (message.type) {
         case 'draw':
-            console.log("Request to draw");
-
             if (message.data) {
                 window.requestAnimationFrame(timestamp => draw(message.data))
             }
