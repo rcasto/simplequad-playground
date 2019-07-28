@@ -15,5 +15,4 @@ export interface QuadWorkerDataMessage extends QuadWorkerMessage {
     data: ImageData;
 }
 
-export interface Pixel extends Point, Color {};
-export interface PixelObject extends Pixel, CollisionObject {};
+export interface Pixel extends Point, Color, CollisionObject {};

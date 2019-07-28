@@ -1,26 +1,24 @@
-import { QuadWorkerDataMessage, Pixel, PixelObject, Color } from './schema';
+import { QuadWorkerDataMessage, Pixel, Color } from './schema';
 import { QuadTree, createQuadTree, BoundingBox } from 'simplequad';
-import { toPixelObject, createPixels, copyImageDataOver, getAverageColor, fillImageDataFromColor, fillPixelInImageData } from './util';
+import { createPixels, getAverageColor, fillPixelInImageData } from './util';
 
-function buildQuadTreeFromPixels(imageData: ImageData, bounds: BoundingBox, capacity: number): QuadTree<PixelObject> {
+function buildQuadTreeFromPixels(imageData: ImageData, bounds: BoundingBox, capacity: number): QuadTree<Pixel> {
     const pixels: Pixel[] = createPixels(imageData);
-    const quadTree: QuadTree<PixelObject> = createQuadTree(bounds, capacity);
+    const quadTree: QuadTree<Pixel> = createQuadTree(bounds, capacity);
 
     // Build quadtree with this capacity from pixels
-    pixels.forEach(pixel => {
-        quadTree.add(toPixelObject(pixel));
-    });
+    pixels.forEach(pixel => quadTree.add(pixel));
 
     return quadTree;
 }
 
-function fillImageDataFromQuadTree(imageData: ImageData, quadTree: QuadTree<PixelObject>): ImageData {    
+function fillImageDataFromQuadTree(imageData: ImageData, quadTree: QuadTree<Pixel>): ImageData {    
     if (quadTree.quadrants.length) {
         quadTree.quadrants
             .forEach(quadrant =>
                 fillImageDataFromQuadTree(imageData, quadrant));
     } else {
-        const pixels: PixelObject[] = quadTree.getData();
+        const pixels: Pixel[] = quadTree.getData();
         const averageColor: Color = getAverageColor(pixels);
         pixels.forEach(pixel => fillPixelInImageData(imageData, {
             ...pixel,
@@ -39,7 +37,7 @@ function processImage(imageData: ImageData): void {
         height: imageData.height,
     };
     let capacity: number = imageData.width * imageData.height;
-    let quadTree: QuadTree<PixelObject>;
+    let quadTree: QuadTree<Pixel>;
     let message: QuadWorkerDataMessage;
     let processImageData: ImageData;
 

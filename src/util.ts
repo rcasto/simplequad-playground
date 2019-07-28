@@ -1,18 +1,6 @@
-import { Pixel, PixelObject, Color } from './schema';
+import { Pixel, Color } from './schema';
 
 export const PIXEL_WIDTH: number = 4;
-
-export function toPixelObject(pixel: Pixel): PixelObject {
-    return {
-        ...pixel,
-        getBounds() {
-            return {
-                x: pixel.x,
-                y: pixel.y,
-            };
-        }
-    }
-}
 
 export function loadImage(imageFile: File): Promise<HTMLImageElement> {
     return new Promise((resolve, reject) => {
@@ -62,7 +50,7 @@ export function getAverageColor(pixels: Pixel[]): Color {
     return averageColor;
 }
 
-export function createPixel(x: number, y: number, r: number, g: number, b: number, a: number): Pixel {
+function createPixel(x: number, y: number, r: number, g: number, b: number, a: number): Pixel {
     return {
         x,
         y,
@@ -70,6 +58,12 @@ export function createPixel(x: number, y: number, r: number, g: number, b: numbe
         g,
         b,
         a,
+        getBounds() {
+            return {
+                x: this.x,
+                y: this.y,
+            };
+        }
     }
 }
 
@@ -77,15 +71,6 @@ export function createPixels(imageData: ImageData): Pixel[] {
     let pixels: Pixel[] = [];
     processImageData(imageData, pixel => pixels.push(pixel));
     return pixels;
-}
-
-export function fillImageDataFromColor(imageData: ImageData, color: Color): void {
-    for (let i = 0; i < imageData.data.length; i += PIXEL_WIDTH) {
-        imageData.data[i] = color.r;
-        imageData.data[i + 1] = color.g;
-        imageData.data[i + 2] = color.b;
-        imageData.data[i + 3] = color.a;
-    }
 }
 
 export function fillPixelInImageData(imageData: ImageData, pixel: Pixel): void {
@@ -101,7 +86,7 @@ export function fillPixelInImageData(imageData: ImageData, pixel: Pixel): void {
     imageData.data[pixelOffset + 3] = pixel.a;
 }
 
-export function processImageData(imageData: ImageData, processFunc: (pixel: Pixel) => void, initPixelX: number = 0, initPixelY: number = 0): void {
+function processImageData(imageData: ImageData, processFunc: (pixel: Pixel) => void, initPixelX: number = 0, initPixelY: number = 0): void {
     let r: number;
     let g: number;
     let b: number;
@@ -133,7 +118,7 @@ export function processImageData(imageData: ImageData, processFunc: (pixel: Pixe
     First checks if it will fit.
     Returns true if it was copied over, false if not.
 */
-export function copyImageDataOver(sourceImageData: ImageData, targetImageData: ImageData, initPixelX: number = 0, initPixelY: number = 0): boolean {
+function copyImageDataOver(sourceImageData: ImageData, targetImageData: ImageData, initPixelX: number = 0, initPixelY: number = 0): boolean {
     // validate inputs
     if (!sourceImageData ||
         !targetImageData ||
