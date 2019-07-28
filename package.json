@@ -1,7 +1,7 @@
 {
   "name": "simplequad-playground",
   "version": "1.0.0",
-  "description": "",
+  "description": "examples and other shiz using simplequad and maybe not...",
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
