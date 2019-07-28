@@ -14,8 +14,11 @@ body {
 body {
     display: flex;
     flex-direction: column;
+    max-width: 600px;
+    margin: 0 auto;
 }
 
 canvas {
     flex-grow: 1;
+    max-height: 400px;
 }
