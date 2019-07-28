@@ -135,8 +135,23 @@ export function toGif(imageFrames: ImageData[]): void {
         .forEach(imageFrame => gif.addFrame(imageFrame));
 
     gif.on('finished', (blob: any) => {
-        window.open(URL.createObjectURL(blob));
+        saveBlob('simplequad.export.gif', blob);
     });
 
     gif.render();
+}
+
+function saveBlob(fileName: string, blob: Blob) {
+    const a = document.createElement("a");
+    const url = window.URL.createObjectURL(blob);
+
+    a.style.display = "none";
+    a.href = url;
+    a.download = fileName;
+    
+    document.body.appendChild(a);
+    a.click();
+
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
 }
