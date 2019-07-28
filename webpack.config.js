@@ -14,17 +14,24 @@ module.exports = {
     },
     module: {
         rules: [{
-            // Include ts, tsx, js, and jsx files.
-            test: /\.(ts|js)x?$/,
-            exclude: /node_modules/,
-            loader: 'babel-loader',
-        },
-        {
-            test: /\.worker\.(ts|js)x$/,
-            use: { 
+            test: /\.worker\.(ts|js)x?$/,
+            use: [{ 
                 loader: 'worker-loader',
-                options: { publicPath: '/public/scripts/' }
-            }
-        }],
+                options: {
+                    name: 'quad.worker.js'
+                }
+            }, {
+                loader: 'babel-loader',
+                options: {
+                    cacheDirectory: true
+                }
+            }]
+        }, {
+                // Include ts, tsx, js, and jsx files.
+                test: /\.(ts|js)x?$/,
+                exclude: /node_modules/,
+                loader: 'babel-loader',
+            },
+        ],
     }
 };
