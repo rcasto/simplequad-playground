@@ -74,9 +74,7 @@ export function createPixels(imageData: ImageData): Pixel[] {
 }
 
 export function fillPixelInImageData(imageData: ImageData, pixel: Pixel): void {
-    const pixelX: number = pixel.x * PIXEL_WIDTH;
-    const pixelY: number = pixel.y * imageData.width * PIXEL_WIDTH;
-    const pixelOffset: number = pixelX + pixelY;
+    const pixelOffset: number = (pixel.x + pixel.y * imageData.width) * PIXEL_WIDTH;
     if (pixelOffset < 0 || pixelOffset + PIXEL_WIDTH >= imageData.data.length) {
         return;
     }
