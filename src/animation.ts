@@ -94,7 +94,7 @@ function main() {
     // export logic
     const exportGifButton: HTMLButtonElement = document.getElementById('export-gif') as HTMLButtonElement;
     exportGifButton.addEventListener('click', () => {
-        toGif(canvas);
+        toGif(frames);
     });
 
     // size canvas

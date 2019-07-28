@@ -1,4 +1,5 @@
 import { Pixel, Color } from './schema';
+import GIF from 'gif.js';
 
 export const PIXEL_WIDTH: number = 4;
 export const WHITE_COLOR: Color = {
@@ -122,4 +123,20 @@ function processImageData(imageData: ImageData, processFunc: (pixel: Pixel) => v
             processFunc(pixel);
         }
     }
+}
+
+export function toGif(imageFrames: ImageData[]): void {
+    const gif = new GIF({
+        workers: 2,
+        quality: 10
+    });
+
+    imageFrames
+        .forEach(imageFrame => gif.addFrame(imageFrame));
+
+    gif.on('finished', (blob: any) => {
+        window.open(URL.createObjectURL(blob));
+    });
+
+    gif.render();
 }
