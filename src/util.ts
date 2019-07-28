@@ -1,6 +1,12 @@
 import { Pixel, Color } from './schema';
 
 export const PIXEL_WIDTH: number = 4;
+export const WHITE_COLOR: Color = {
+    r: 255,
+    g: 255,
+    b: 255,
+    a: 255,
+};
 
 export function loadImage(imageFile: File): Promise<HTMLImageElement> {
     return new Promise((resolve, reject) => {
@@ -24,12 +30,7 @@ export function getAverageColor(pixels: Pixel[]): Color {
     let squaredSumG: number;
     let squaredSumB: number;
     let squaredSumA: number;
-    let averageColor: Color = pixels[0] || {
-        r: 255,
-        g: 255,
-        b: 255,
-        a: 255,
-    };
+    let averageColor: Color = pixels[0] || WHITE_COLOR;
 
     if (pixels.length > 1) {
         return pixels.slice(1)
