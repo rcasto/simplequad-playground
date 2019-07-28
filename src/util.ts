@@ -86,6 +86,19 @@ export function fillPixelInImageData(imageData: ImageData, pixel: Pixel): void {
     imageData.data[pixelOffset + 3] = pixel.a;
 }
 
+export function getImageDataOffScreen(image: HTMLImageElement, width: number, height: number): ImageData {
+    const canvas: HTMLCanvasElement = document.createElement('canvas');
+    const context: CanvasRenderingContext2D = canvas.getContext('2d') as CanvasRenderingContext2D;
+
+    canvas.width = width;
+    canvas.height = height;
+
+    context.drawImage(image, 0, 0, image.width, image.height, 0, 0, canvas.width, canvas.height);
+
+    const imageData: ImageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    return imageData;
+}
+
 function processImageData(imageData: ImageData, processFunc: (pixel: Pixel) => void, initPixelX: number = 0, initPixelY: number = 0): void {
     let r: number;
     let g: number;

@@ -32,25 +32,13 @@ function fillImageDataFromQuadTree(imageData: ImageData, quadTree: QuadTree<Pixe
 }
 
 function processImage(imageData: ImageData): void {
-    const bounds: BoundingBox = {
-        x: 0,
-        y: 0,
-        width: imageData.width,
-        height: imageData.height,
-    };
     let capacity: number = imageData.width * imageData.height;
-    let quadTree: QuadTree<Pixel>;
     let message: QuadWorkerDataMessage;
-    let processImageData: ImageData;
 
     while (capacity > 1 && currentImageData === imageData) {
-        quadTree = buildQuadTreeFromPixels(imageData, bounds, capacity);
-        processImageData = new ImageData(imageData.width, imageData.height);
-        fillImageDataFromQuadTree(processImageData, quadTree);
-
         message = {
             type: 'draw',
-            data: processImageData
+            data: createImage(imageData, capacity),
         };
         postMessage(message);
 
@@ -58,6 +46,18 @@ function processImage(imageData: ImageData): void {
     }
 
     currentImageData = null;
+}
+
+function createImage(imageData: ImageData, capacity: number): ImageData {
+    const newImageData: ImageData = new ImageData(imageData.width, imageData.height);
+    const quadTree: QuadTree<Pixel> = buildQuadTreeFromPixels(imageData, {
+        x: 0,
+        y: 0,
+        width: imageData.width,
+        height: imageData.height,
+    }, capacity);
+    fillImageDataFromQuadTree(newImageData, quadTree);
+    return newImageData;
 }
 
 // Setting up the worker

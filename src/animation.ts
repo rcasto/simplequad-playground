@@ -1,5 +1,5 @@
 import { QuadWorkerDataMessage } from './schema';
-import { loadImage } from './util';
+import { loadImage, getImageDataOffScreen } from './util';
 import QuadWorker from 'worker-loader!./quad.worker';
 
 let canvas: HTMLCanvasElement;
@@ -14,7 +14,7 @@ function draw(imageData: ImageData) {
 
 function processImage(imageFile: File): void {
     loadImage(imageFile)
-        .then(getImageData)
+        .then(imageElem => getImageDataOffScreen(imageElem, canvas.width, canvas.height))
         .then((imageData: ImageData) => {
             const message: QuadWorkerDataMessage = {
                 type: 'new-image',
@@ -33,13 +33,6 @@ function onImageChange(event: Event) {
     }
     const firstImage = imageInput.files[0];
     processImage(firstImage);
-}
-
-function getImageData(image: HTMLImageElement): ImageData {
-    context.drawImage(image, 0, 0, image.width, image.height, 0, 0, canvas.width, canvas.height);
-
-    const imageData: ImageData = context.getImageData(0, 0, canvas.width, canvas.height);
-    return imageData;
 }
 
 function resizeCanvas() {
