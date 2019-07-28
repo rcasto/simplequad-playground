@@ -5,7 +5,7 @@ const port = process.env.PORT || 3000;
 function init() {
     const app = express();
 
-    app.use(express.static('public'));
+    app.use(express.static('./'));
 
     app.get('/', (req, res) => {
         res.sendFile('index.html');
