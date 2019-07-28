@@ -14,7 +14,7 @@ function draw(imageData: ImageData) {
     context.putImageData(imageData, 0, 0);
 }
 
-function offlineAnimate(offlineFrames: ImageData[], animateIndex: number = 0, currFrameIndex: number = 0, numFramesEach: number = 100): void {
+function offlineAnimate(offlineFrames: ImageData[], animateIndex: number = 0, currFrameIndex: number = 0, numFramesEach: number = 20): void {
     let nextFrameIndex: number = currFrameIndex + 1;
     let nextAnimateIndex: number = animateIndex;
 
