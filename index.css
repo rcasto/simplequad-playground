@@ -21,4 +21,5 @@ body {
 canvas {
     flex-grow: 1;
     max-height: 400px;
+    border: 1px solid black;
 }
