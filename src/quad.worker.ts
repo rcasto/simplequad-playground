@@ -40,8 +40,14 @@ function processImage(imageData: ImageData): void {
         };
         postMessage(message);
 
-        capacity = Math.max(capacity / 2, 1);
+        capacity /= 2;
     }
+
+    message = {
+        type: 'draw',
+        data: createImage(imageData, 1),
+    };
+    postMessage(message);
 }
 
 function createImage(imageData: ImageData, capacity: number): ImageData {
