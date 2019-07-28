@@ -1,5 +1,5 @@
 import { QuadWorkerDataMessage } from './schema';
-import { loadImage, getImageDataOffScreen } from './util';
+import { loadImage, getImageDataOffScreen, toGif } from './util';
 import QuadWorker from 'worker-loader!./quad.worker';
 
 let canvas: HTMLCanvasElement;
@@ -91,6 +91,13 @@ function main() {
     quadWorker = new QuadWorker();
     quadWorker.addEventListener('message', onWorkerMessage);
 
+    // export logic
+    const exportGifButton: HTMLButtonElement = document.getElementById('export-gif') as HTMLButtonElement;
+    exportGifButton.addEventListener('click', () => {
+        toGif(canvas);
+    });
+
+    // size canvas
     resizeCanvas();
 }
 

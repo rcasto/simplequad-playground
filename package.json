@@ -10,7 +10,8 @@
     "build": "npm run build:types && npm run build:js",
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
-    "bundle": "npm run clean && webpack",
+    "bundle": "npm run clean && npm run move:gifworker && webpack",
+    "move:gifworker": "cpy node_modules/gif.js/dist/gif.worker.js .",
     "clean": "rimraf *.worker.js app.bundle.js"
   },
   "author": "Richie Casto (https://github.com/rcasto)",
@@ -29,6 +30,7 @@
     "@babel/preset-env": "^7.4.1",
     "@babel/preset-typescript": "^7.3.2",
     "babel-loader": "^8.0.6",
+    "cpy-cli": "^2.0.0",
     "rimraf": "^2.6.3",
     "typescript": "^3.3.3",
     "webpack": "^4.36.1",
