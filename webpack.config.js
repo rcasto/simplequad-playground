@@ -17,9 +17,6 @@ module.exports = {
             test: /\.worker\.(ts|js)x?$/,
             use: [{ 
                 loader: 'worker-loader',
-                options: {
-                    name: 'quad.worker.js'
-                }
             }, {
                 loader: 'babel-loader',
                 options: {

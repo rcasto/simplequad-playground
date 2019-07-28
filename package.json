@@ -10,7 +10,8 @@
     "build": "npm run build:types && npm run build:js",
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
-    "bundle": "webpack"
+    "bundle": "npm run clean && webpack",
+    "clean": "rimraf public/*.js"
   },
   "author": "Richie Casto (https://github.com/rcasto)",
   "license": "MIT",
@@ -27,6 +28,7 @@
     "@babel/preset-env": "^7.4.1",
     "@babel/preset-typescript": "^7.3.2",
     "babel-loader": "^8.0.6",
+    "rimraf": "^2.6.3",
     "typescript": "^3.3.3",
     "webpack": "^4.36.1",
     "webpack-cli": "^3.3.6",
