@@ -96,10 +96,10 @@ function processImageData(imageData: ImageData, processFunc: (pixel: Pixel) => v
     let pixel: Pixel;
 
     for (let x = initPixelX; x < imageData.width; x++) {
-        offsetX = Math.round(x * PIXEL_WIDTH);
+        offsetX = x * PIXEL_WIDTH;
 
         for (let y = initPixelY; y < imageData.height; y++) {
-            offsetY = Math.round(imageData.width * y * PIXEL_WIDTH);
+            offsetY = imageData.width * y * PIXEL_WIDTH;
 
             r = imageData.data[offsetX + offsetY];
             g = imageData.data[offsetX + offsetY + 1];
@@ -110,56 +110,4 @@ function processImageData(imageData: ImageData, processFunc: (pixel: Pixel) => v
             processFunc(pixel);
         }
     }
-}
-
-/*
-    Merges the target image data into the source image data object
-
-    First checks if it will fit.
-    Returns true if it was copied over, false if not.
-*/
-function copyImageDataOver(sourceImageData: ImageData, targetImageData: ImageData, initPixelX: number = 0, initPixelY: number = 0): boolean {
-    // validate inputs
-    if (!sourceImageData ||
-        !targetImageData ||
-        initPixelX < 0 ||
-        initPixelY < 0 ||
-        initPixelX > sourceImageData.width ||
-        initPixelY > sourceImageData.height) {
-        return false;
-    }
-
-    // can target image data fit?
-    if (initPixelX + targetImageData.width > sourceImageData.width ||
-        initPixelY + targetImageData.height > sourceImageData.height) {
-        return false;
-    }
-
-    let sourceOffsetX: number;
-    let sourceOffsetY: number;
-    let sourceOffset: number;
-
-    let targetOffsetX: number;
-    let targetOffsetY: number;
-    let targetOffset: number;
-
-    for (let x = 0; x < targetImageData.width; x++) {
-        sourceOffsetX = (x + initPixelX) * PIXEL_WIDTH;
-        targetOffsetX = x * PIXEL_WIDTH;
-
-        for (let y = 0; y < targetImageData.height; y++) {
-            sourceOffsetY = sourceImageData.width * (y + initPixelY) * PIXEL_WIDTH;
-            targetOffsetY = targetImageData.width * y * PIXEL_WIDTH;
-
-            sourceOffset = Math.round(sourceOffsetX + sourceOffsetY);
-            targetOffset = Math.round(targetOffsetX + targetOffsetY);
-
-            sourceImageData.data[sourceOffset] = targetImageData.data[targetOffset];
-            sourceImageData.data[sourceOffset + 1] = targetImageData.data[targetOffset + 1];
-            sourceImageData.data[sourceOffset + 2] = targetImageData.data[targetOffset + 2];
-            sourceImageData.data[sourceOffset + 3] = targetImageData.data[targetOffset + 3];
-        }
-    }
-
-    return true;
 }
