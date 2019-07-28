@@ -1,6 +1,6 @@
 import { QuadWorkerDataMessage, Pixel, PixelObject, Color } from './schema';
 import { QuadTree, createQuadTree, BoundingBox } from 'simplequad';
-import { toPixelObject, createPixels, copyImageDataOver, getAverageColor, fillImageDataFromColor } from './util';
+import { toPixelObject, createPixels, copyImageDataOver, getAverageColor, fillImageDataFromColor, fillPixelInImageData } from './util';
 
 function buildQuadTreeFromPixels(imageData: ImageData, bounds: BoundingBox, capacity: number): QuadTree<PixelObject> {
     const pixels: Pixel[] = createPixels(imageData);
@@ -14,20 +14,18 @@ function buildQuadTreeFromPixels(imageData: ImageData, bounds: BoundingBox, capa
     return quadTree;
 }
 
-function getImageDataFromQuadTree(quadTree: QuadTree<PixelObject>): ImageData {
-    const imageData: ImageData = new ImageData(Math.max(quadTree.bounds.width, 1), Math.max(quadTree.bounds.height, 1));
-    
+function fillImageDataFromQuadTree(imageData: ImageData, quadTree: QuadTree<PixelObject>): ImageData {    
     if (quadTree.quadrants.length) {
-        let quadImageData: ImageData;
         quadTree.quadrants
-            .forEach(quadrant => {
-                quadImageData = getImageDataFromQuadTree(quadrant);
-                copyImageDataOver(imageData, quadImageData, quadrant.bounds.x, quadrant.bounds.y);
-            });
+            .forEach(quadrant =>
+                fillImageDataFromQuadTree(imageData, quadrant));
     } else {
         const pixels: PixelObject[] = quadTree.getData();
         const averageColor: Color = getAverageColor(pixels);
-        fillImageDataFromColor(imageData, averageColor);
+        pixels.forEach(pixel => fillPixelInImageData(imageData, {
+            ...pixel,
+            ...averageColor,
+        }));
     }
 
     return imageData;
@@ -43,12 +41,16 @@ function processImage(imageData: ImageData): void {
     let capacity: number = imageData.width * imageData.height;
     let quadTree: QuadTree<PixelObject>;
     let message: QuadWorkerDataMessage;
+    let processImageData: ImageData;
 
     while (capacity > 1) {
         quadTree = buildQuadTreeFromPixels(imageData, bounds, capacity);
+        processImageData = new ImageData(imageData.width, imageData.height);
+        fillImageDataFromQuadTree(processImageData, quadTree);
+
         message = {
             type: 'draw',
-            data: getImageDataFromQuadTree(quadTree),
+            data: processImageData
         };
         postMessage(message);
 
@@ -74,5 +76,4 @@ worker.addEventListener('message', (event) => {
             console.error(`Unknown message type: ${message}`);
             return;
     }
-    console.log(message.type);
 });

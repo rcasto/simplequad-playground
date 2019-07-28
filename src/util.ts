@@ -36,7 +36,12 @@ export function getAverageColor(pixels: Pixel[]): Color {
     let squaredSumG: number;
     let squaredSumB: number;
     let squaredSumA: number;
-    let averageColor: Color = pixels[0];
+    let averageColor: Color = pixels[0] || {
+        r: 255,
+        g: 255,
+        b: 255,
+        a: 255,
+    };
 
     if (pixels.length > 1) {
         return pixels.slice(1)
@@ -83,6 +88,19 @@ export function fillImageDataFromColor(imageData: ImageData, color: Color): void
     }
 }
 
+export function fillPixelInImageData(imageData: ImageData, pixel: Pixel): void {
+    const pixelX: number = pixel.x * PIXEL_WIDTH;
+    const pixelY: number = pixel.y * imageData.width * PIXEL_WIDTH;
+    const pixelOffset: number = pixelX + pixelY;
+    if (pixelOffset < 0 || pixelOffset + PIXEL_WIDTH >= imageData.data.length) {
+        return;
+    }
+    imageData.data[pixelOffset] = pixel.r;
+    imageData.data[pixelOffset + 1] = pixel.g;
+    imageData.data[pixelOffset + 2] = pixel.b;
+    imageData.data[pixelOffset + 3] = pixel.a;
+}
+
 export function processImageData(imageData: ImageData, processFunc: (pixel: Pixel) => void, initPixelX: number = 0, initPixelY: number = 0): void {
     let r: number;
     let g: number;
@@ -93,10 +111,10 @@ export function processImageData(imageData: ImageData, processFunc: (pixel: Pixe
     let pixel: Pixel;
 
     for (let x = initPixelX; x < imageData.width; x++) {
-        offsetX = x * PIXEL_WIDTH;
+        offsetX = Math.round(x * PIXEL_WIDTH);
 
         for (let y = initPixelY; y < imageData.height; y++) {
-            offsetY = imageData.width * y * PIXEL_WIDTH;
+            offsetY = Math.round(imageData.width * y * PIXEL_WIDTH);
 
             r = imageData.data[offsetX + offsetY];
             g = imageData.data[offsetX + offsetY + 1];
@@ -132,21 +150,29 @@ export function copyImageDataOver(sourceImageData: ImageData, targetImageData: I
         return false;
     }
 
-    let offsetX: number;
-    let offsetY: number;
-    let pixelOffset: number;
+    let sourceOffsetX: number;
+    let sourceOffsetY: number;
+    let sourceOffset: number;
 
-    for (let x = initPixelX; x < targetImageData.width; x++) {
-        offsetX = x * PIXEL_WIDTH;
-        
-        for (let y = initPixelY; y < targetImageData.height; y++) {
-            offsetY = targetImageData.width * y * PIXEL_WIDTH;
-            pixelOffset = offsetX + offsetY;
+    let targetOffsetX: number;
+    let targetOffsetY: number;
+    let targetOffset: number;
 
-            sourceImageData.data[pixelOffset] = targetImageData.data[pixelOffset];
-            sourceImageData.data[pixelOffset + 1] = targetImageData.data[pixelOffset + 1];
-            sourceImageData.data[pixelOffset + 2] = targetImageData.data[pixelOffset + 2];
-            sourceImageData.data[pixelOffset + 3] = targetImageData.data[pixelOffset + 3];
+    for (let x = 0; x < targetImageData.width; x++) {
+        sourceOffsetX = (x + initPixelX) * PIXEL_WIDTH;
+        targetOffsetX = x * PIXEL_WIDTH;
+
+        for (let y = 0; y < targetImageData.height; y++) {
+            sourceOffsetY = sourceImageData.width * (y + initPixelY) * PIXEL_WIDTH;
+            targetOffsetY = targetImageData.width * y * PIXEL_WIDTH;
+
+            sourceOffset = Math.round(sourceOffsetX + sourceOffsetY);
+            targetOffset = Math.round(targetOffsetX + targetOffsetY);
+
+            sourceImageData.data[sourceOffset] = targetImageData.data[targetOffset];
+            sourceImageData.data[sourceOffset + 1] = targetImageData.data[targetOffset + 1];
+            sourceImageData.data[sourceOffset + 2] = targetImageData.data[targetOffset + 2];
+            sourceImageData.data[sourceOffset + 3] = targetImageData.data[targetOffset + 3];
         }
     }
 

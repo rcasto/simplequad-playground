@@ -64,7 +64,6 @@ function onWorkerMessage(event: MessageEvent): void {
             console.error(`Unknown message type: ${message}`);
             return;
     }
-    console.log(message.type);
 }
 
 function main() {
