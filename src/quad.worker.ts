@@ -29,25 +29,23 @@ function fillImageDataFromQuadTree(imageData: ImageData, quadTree: QuadTree<Pixe
     return imageData;
 }
 
+function requestDraw(imageData: ImageData, capacity: number): void {
+    const message: QuadWorkerDataMessage = {
+        type: 'draw',
+        data: createImage(imageData, capacity),
+    };
+    postMessage(message);
+}
+
 function processImage(imageData: ImageData): void {
     let capacity: number = imageData.width * imageData.height;
-    let message: QuadWorkerDataMessage;
 
     while (capacity > 1) {
-        message = {
-            type: 'draw',
-            data: createImage(imageData, capacity),
-        };
-        postMessage(message);
-
+        requestDraw(imageData, capacity);
         capacity /= 2;
     }
 
-    message = {
-        type: 'draw',
-        data: createImage(imageData, 1),
-    };
-    postMessage(message);
+    requestDraw(imageData, 1);
 }
 
 function createImage(imageData: ImageData, capacity: number): ImageData {
