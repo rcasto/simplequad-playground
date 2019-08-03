@@ -11,6 +11,7 @@ const processedFrames: ImageData[] = [];
 const processingQueue: File[] = [];
 let isProcessing: boolean = false;
 let offlineAnimateId: number;
+let processTimestamp: number;
 
 function draw(imageData: ImageData) {
     context.clearRect(0, 0, canvas.width, canvas.height);
@@ -42,6 +43,7 @@ function processImage(imageFile: File): void {
                 data: imageData
             };
             quadWorker.postMessage(message);
+            processTimestamp = performance.now();
         });
 }
 
@@ -91,6 +93,7 @@ function onWorkerMessage(event: MessageEvent): void {
                 isProcessing = false;
             }
 
+            console.log(`Time to process: ${performance.now() - processTimestamp}`);
             exportGifButton.disabled = isProcessing;
             break;
         default:
