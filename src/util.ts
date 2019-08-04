@@ -60,12 +60,6 @@ function createPixel(x: number, y: number, r: number, g: number, b: number, a: n
         g,
         b,
         a,
-        getBounds() {
-            return {
-                x: this.x,
-                y: this.y,
-            };
-        }
     }
 }
 

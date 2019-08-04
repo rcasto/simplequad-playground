@@ -1,10 +1,10 @@
-import { BoundingBox, createQuadTree, Point, QuadTree, CollisionObject } from 'simplequad';
+import { BoundingBox, createQuadTree, Point, QuadTree } from 'simplequad';
 
 let canvas: HTMLCanvasElement;
 let context: CanvasRenderingContext2D;
 let imageInput: HTMLInputElement;
 
-interface Pixel extends CollisionObject, Point {
+interface Pixel extends Point {
     r: number;
     g: number;
     b: number;
@@ -26,13 +26,7 @@ function createPixel(x: number, y: number, r: number, g: number, b: number, a: n
         g,
         b,
         a,
-        getBounds() {
-            return {
-                x: this.x,
-                y: this.y,
-            };
-        },
-    }
+    };
 }
 
 function compressImage(imageData: ImageData) {

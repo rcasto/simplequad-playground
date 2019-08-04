@@ -1,4 +1,4 @@
-import { CollisionObject, Point } from 'simplequad';
+import { Point } from 'simplequad';
 
 export interface Color {
     r: number;
@@ -15,4 +15,4 @@ export interface QuadWorkerDataMessage extends QuadWorkerMessage {
     data: ImageData;
 }
 
-export interface Pixel extends Point, Color, CollisionObject {};
+export interface Pixel extends Point, Color {};

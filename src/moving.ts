@@ -1,11 +1,11 @@
-import { BoundingBox, Circle, createQuadTree, QuadTree, CollisionObject } from 'simplequad';
+import { BoundingBox, Circle, createQuadTree, QuadTree } from 'simplequad';
 
 interface Vector {
     x: number;
     y: number;
 }
 
-interface Particle extends CollisionObject, Circle {
+interface Particle extends Circle {
     v: Vector;
     lastUpdate: number;
     update: (timestamp: number) => void;
@@ -21,7 +21,7 @@ const bounds: BoundingBox = {
 };
 const canvas: HTMLCanvasElement = document.getElementById('canvas') as unknown as HTMLCanvasElement;
 const context: CanvasRenderingContext2D = canvas.getContext('2d') as CanvasRenderingContext2D;
-const quadTree: QuadTree = createQuadTree(bounds, capacity);
+const quadTree: QuadTree<Particle> = createQuadTree(bounds, capacity);
 const wallDampenFactor: number = 0.8;
 const maxParticleRadius: number = 15;
 const minParticleRadius: number = 5;
@@ -65,13 +65,13 @@ function animate(animateTimestamp: number = 0) {
     // Draw each particle in the world
     particlesInWorld
         .forEach(particleInWorld => {
-            const particleWindowQueryResultSet: Set<CollisionObject> = quadTree.query(particleInWorld.getBounds());
+            const particleWindowQueryResultSet: Set<Particle> = quadTree.query(particleInWorld);
             particleInWorld.draw(context, particleWindowQueryResultSet.size > 1);
         });
 }
 
 // Resolves all particle collisions
-function resolveParticleWorldCollisions(particle: Particle, quadTree: QuadTree): void {
+function resolveParticleWorldCollisions(particle: Particle, quadTree: QuadTree<Particle>): void {
     const minX: number = quadTree.bounds.x + particle.r;
     const minY: number = quadTree.bounds.y + particle.r;
     const maxX: number = quadTree.bounds.x + quadTree.bounds.width - particle.r;
@@ -137,13 +137,6 @@ function createParticle(bounds: BoundingBox): Particle {
             context.arc(this.x, this.y, 1, 0, TWO_PI);
             context.fill();
             context.closePath();
-        },
-        getBounds() {
-            return {
-                x: this.x,
-                y: this.y,
-                r: this.r,
-            };
         },
     };
 }
