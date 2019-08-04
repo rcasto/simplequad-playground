@@ -1,6 +1,6 @@
 import { QuadWorkerDataMessage, Pixel, Color, QuadWorkerMessage } from './schema';
 import { QuadTree, createQuadTree, BoundingBox } from 'simplequad';
-import { createPixels, getAverageColor, fillPixelInImageData } from './util';
+import { createPixels, getAverageColor, fillPixelInImageData, PIXEL_WIDTH } from './util';
 
 const processedMessage: QuadWorkerMessage = {
     type: 'processed',
@@ -25,8 +25,12 @@ function fillImageDataFromQuadTree(imageData: ImageData, quadTree: QuadTree<Pixe
         const pixels: Pixel[] = quadTree.getData();
         const averageColor: Color = getAverageColor(pixels);
         pixels.forEach(pixel => fillPixelInImageData(imageData, {
-            ...pixel,
-            ...averageColor,
+            x: pixel.x,
+            y: pixel.y,
+            r: averageColor.r,
+            g: averageColor.g,
+            b: averageColor.b,
+            a: averageColor.a,
         }));
     }
 

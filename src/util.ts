@@ -138,10 +138,10 @@ export function toGif(imageFrames: ImageData[]): void {
 }
 
 function saveBlob(fileName: string, blob: Blob) {
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     const url = window.URL.createObjectURL(blob);
 
-    a.style.display = "none";
+    a.style.display = 'none';
     a.href = url;
     a.download = fileName;
     
