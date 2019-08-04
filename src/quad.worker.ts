@@ -1,6 +1,6 @@
 import { QuadWorkerDataMessage, Pixel, Color, QuadWorkerMessage } from './schema';
 import { QuadTree, createQuadTree, BoundingBox } from 'simplequad';
-import { createPixels, getAverageColor, fillPixelInImageData, PIXEL_WIDTH } from './util';
+import { createPixels, getAverageColor, fillPixelInImageData } from './util';
 
 const processedMessage: QuadWorkerMessage = {
     type: 'processed',
