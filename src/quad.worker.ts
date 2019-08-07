@@ -38,9 +38,14 @@ function fillImageDataFromQuadTree(imageData: ImageData, quadTree: QuadTree<Pixe
 }
 
 function requestDraw(imageData: ImageData, capacity: number): void {
+    const generatedImage: ImageData = createImage(imageData, capacity);
+    requestDrawGenerated(generatedImage);
+}
+
+function requestDrawGenerated(imageData: ImageData) {
     const message: QuadWorkerDataMessage = {
         type: 'draw',
-        data: createImage(imageData, capacity),
+        data: imageData,
     };
     postMessage(message);
 }
@@ -53,7 +58,7 @@ function processImage(imageData: ImageData): void {
         capacity /= 2;
     }
 
-    requestDraw(imageData, 1);
+    requestDrawGenerated(imageData);
     postMessage(processedMessage);
 }
 
